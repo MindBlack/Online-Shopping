@@ -72,10 +72,18 @@ public class ItemCatServiceImpl implements ItemCatService {
 	 * 批量删除
 	 */
 	@Override
-	public void delete(Long[] ids) {
+	public String delete(Long[] ids) {
+		String result=null;
 		for(Long id:ids){
-			itemCatMapper.deleteByPrimaryKey(id);
-		}		
+			List<TbItemCat> itemCats = findByParentId(id);
+			if (itemCats!=null && itemCats.size()>0){
+				result="删除失败--->请先查询下级--->删除下级后再删除该分类";
+			}else {
+				itemCatMapper.deleteByPrimaryKey(id);
+				result="删除成功";
+			}
+		}
+		return result;
 	}
 	
 	
@@ -87,14 +95,29 @@ public class ItemCatServiceImpl implements ItemCatService {
 		Criteria criteria = example.createCriteria();
 		
 		if(itemCat!=null){			
-						if(itemCat.getName()!=null && itemCat.getName().length()>0){
+			if(itemCat.getName()!=null && itemCat.getName().length()>0){
 				criteria.andNameLike("%"+itemCat.getName()+"%");
 			}
-	
+			if (itemCat.getParentId()!=null){
+				criteria.andParentIdEqualTo(itemCat.getParentId());
+			}
 		}
 		
 		Page<TbItemCat> page= (Page<TbItemCat>)itemCatMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+	/**
+	 * 根据parentId分级查询
+	 * @param parentId
+	 * @return
+	 */
+	@Override
+	public List<TbItemCat> findByParentId(Long parentId) {
+		TbItemCatExample example = new TbItemCatExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andParentIdEqualTo(parentId);
+		return itemCatMapper.selectByExample(example);
+	}
+
 }

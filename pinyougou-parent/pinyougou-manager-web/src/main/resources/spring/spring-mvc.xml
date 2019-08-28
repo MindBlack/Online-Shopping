@@ -30,4 +30,7 @@
     <dubbo:registry address="zookeeper://192.168.25.168:2181"/>
     <dubbo:annotation package="com.pinyougou.manage.controller"/>
 
+    <!--白名单-->
+    
+
 </beans>

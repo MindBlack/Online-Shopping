@@ -1,5 +1,5 @@
  //控制层 
-app.controller('itemCatController' ,function($scope,$controller   ,itemCatService){	
+app.controller('itemCatController' ,function($scope,$controller,itemCatService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -35,9 +35,10 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 	$scope.save=function(){				
 		var serviceObject;//服务层对象  				
 		if($scope.entity.id!=null){//如果有ID
-			serviceObject=itemCatService.update( $scope.entity ); //修改  
+			serviceObject=itemCatService.update( $scope.entity); //修改
 		}else{
-			serviceObject=itemCatService.add( $scope.entity  );//增加 
+			$scope.entity.parentId=$scope.searchEntity.parentId;
+			serviceObject=itemCatService.add( $scope.entity);//增加
 		}				
 		serviceObject.success(
 			function(response){
@@ -58,23 +59,64 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 		itemCatService.dele( $scope.selectIds ).success(
 			function(response){
 				if(response.success){
+					alert(response.massage);
 					$scope.reloadList();//刷新列表
 					$scope.selectIds=[];
-				}						
+				}else {
+					alert(response.massage);
+				}
 			}		
 		);				
-	}
+	};
 	
-	$scope.searchEntity={};//定义搜索对象 
+	$scope.searchEntity={};//定义搜索对象
+
+
 	
 	//搜索
 	$scope.search=function(page,rows){			
 		itemCatService.search(page,rows,$scope.searchEntity).success(
 			function(response){
-				$scope.list=response.rows;	
+				$scope.list=response.rows;
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
-		);
+		)
+	};
+
+
+
+	//根据parentId查询数据
+	$scope.findByParentId=function (parentId) {
+		$scope.searchEntity.parentId=parentId;
+		$scope.reloadList();
+		/*itemCatService.findByParentId(parentId).success(function (response) {
+			$scope.list=response;
+			$scope.paginationConf.totalItems=response.total;//更新总记录数
+		})*/
+	};
+
+	//定义变量
+	$scope.grade=1;
+
+	//调用方法,变量++
+	$scope.gradePlus=function () {
+		$scope.grade++;
+	};
+
+	$scope.parentId=0;
+	//面包屑操作
+	$scope.selectList=function (itemCat) {
+		if ($scope.grade==1){
+			$scope.entity_1=null;
+			$scope.entity_2=null;
+		}else if ($scope.grade==2){
+			$scope.entity_1=itemCat;
+			$scope.entity_2=null;
+		}else if ($scope.grade==3){
+			$scope.entity_2=itemCat;
+		}
+		$scope.findByParentId(itemCat.id);
 	}
-    
+
+
 });	

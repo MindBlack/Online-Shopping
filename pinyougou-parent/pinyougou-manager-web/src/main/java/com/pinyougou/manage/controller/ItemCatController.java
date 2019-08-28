@@ -90,18 +90,19 @@ public class ItemCatController {
 	 */
 	@RequestMapping("/delete")
 	public Result delete(Long [] ids){
+		String result = null;
 		try {
-			itemCatService.delete(ids);
-			return new Result(true, "删除成功"); 
+			result = itemCatService.delete(ids);
+			return new Result(true, result);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new Result(false, "删除失败");
+			return new Result(false, result);
 		}
 	}
 	
 		/**
 	 * 查询+分页
-	 * @param brand
+	 * @param itemCat
 	 * @param page
 	 * @param rows
 	 * @return
@@ -109,6 +110,11 @@ public class ItemCatController {
 	@RequestMapping("/search")
 	public PageResult search(@RequestBody TbItemCat itemCat, int page, int rows  ){
 		return itemCatService.findPage(itemCat, page, rows);		
+	}
+
+	@RequestMapping("/findByParentId")
+	public List<TbItemCat> findByParentId(Long parentId){
+		return itemCatService.findByParentId(parentId);
 	}
 	
 }
