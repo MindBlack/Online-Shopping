@@ -113,6 +113,10 @@ public class SpecificationController {
 		return specificationService.findPage(specification, page, rows);
 	}
 
+	/**
+	 * select2下拉框模板查询
+	 * @return
+	 */
 	@RequestMapping("/selectSpecTextList")
 	public List<Map> selectSpecTextList(){
 		return specificationService.selectSpecTextList();

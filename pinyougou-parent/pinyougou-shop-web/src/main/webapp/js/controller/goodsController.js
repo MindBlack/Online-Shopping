@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller   ,goodsService){	
+app.controller('goodsController' ,function($scope,$controller,goodsService,fileService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -37,13 +37,16 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 		if($scope.entity.id!=null){//如果有ID
 			serviceObject=goodsService.update( $scope.entity ); //修改  
 		}else{
-			serviceObject=goodsService.add( $scope.entity  );//增加 
+			$scope.entity.goodsDesc.introduction=editor.html();
+			serviceObject=goodsService.add( $scope.entity);//增加
 		}				
 		serviceObject.success(
 			function(response){
 				if(response.success){
 					//重新查询 
-		        	$scope.reloadList();//重新加载
+		        	alert(response.message);//重新加载
+					$scope.entity={};
+					editor.html("");
 				}else{
 					alert(response.message);
 				}

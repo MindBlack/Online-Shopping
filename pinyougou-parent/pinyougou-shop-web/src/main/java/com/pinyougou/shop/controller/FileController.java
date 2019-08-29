@@ -1,0 +1,39 @@
+package com.pinyougou.shop.controller;
+
+import com.pinyougou.entity.Result;
+import com.pinyougou.utils.FastDFSClient;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+/**
+ * 文件上传与下载controller层
+ */
+@RestController
+public class FileController {
+
+    @Value("http://192.168.25.133/")
+    private String trackerServerUrl;
+    @RequestMapping("/upload")
+    public Result uploadFile(MultipartFile upload){
+        try {
+            //获取文件名后缀
+            String originalFilename = upload.getOriginalFilename();
+            String extensionName = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+            //加载配置文件
+            FastDFSClient fastDFSClient = new FastDFSClient("classpath:fast/fdfs_client.conf");
+            String uploadFile = fastDFSClient.uploadFile(upload.getBytes(), extensionName);
+            String complationUrl = trackerServerUrl + uploadFile;
+            return new Result(true,complationUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,"上传失败");
+        }
+
+    }
+
+
+
+
+}

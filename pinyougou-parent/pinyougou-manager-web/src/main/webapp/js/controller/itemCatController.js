@@ -1,9 +1,9 @@
  //控制层 
-app.controller('itemCatController' ,function($scope,$controller,itemCatService){
+app.controller('itemCatController' ,function($scope,$controller,itemCatService,typeTemplateService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
-    //读取列表数据绑定到表单中  
+    //读取列表数据绑定到表单中
 	$scope.findAll=function(){
 		itemCatService.findAll().success(
 			function(response){
@@ -59,11 +59,11 @@ app.controller('itemCatController' ,function($scope,$controller,itemCatService){
 		itemCatService.dele( $scope.selectIds ).success(
 			function(response){
 				if(response.success){
-					alert(response.massage);
+					alert(response.message);
 					$scope.reloadList();//刷新列表
 					$scope.selectIds=[];
 				}else {
-					alert(response.massage);
+					alert(response.message);
 				}
 			}		
 		);				
@@ -116,6 +116,18 @@ app.controller('itemCatController' ,function($scope,$controller,itemCatService){
 			$scope.entity_2=itemCat;
 		}
 		$scope.findByParentId(itemCat.id);
+	}
+
+	//模板初始化
+	$scope.typeList={data:[{id:1,text:"苹果"},{id:2,text:"华为"}]}
+
+	//类型模板
+	$scope.seleType=function () {
+		typeTemplateService.seleTpye().success(
+			function (response) {
+				$scope.typeList={data:response};
+			}
+		)
 	}
 
 

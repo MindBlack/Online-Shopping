@@ -37,7 +37,7 @@ app.controller("brandController",function ($scope, $controller,brandService) {
             if (request.success){
                 $scope.reloadList();
             }else {
-                alert(request.massage);
+                alert(request.message);
             }
         })
     };
@@ -54,7 +54,7 @@ app.controller("brandController",function ($scope, $controller,brandService) {
             if (respones.success){
                 $scope.reloadList();
             } else {
-                alert(request.massage);
+                alert(request.message);
             }
             $scope.selectIds=[];
         })

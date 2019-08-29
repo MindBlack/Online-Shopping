@@ -5,14 +5,14 @@ import java.io.Serializable;
 public class Result implements Serializable {
 
     private boolean success;
-    private String massage;
+    private String message;
 
     public Result() {
     }
 
-    public Result(boolean success, String massage) {
+    public Result(boolean success, String message) {
         this.success = success;
-        this.massage = massage;
+        this.message = message;
     }
 
     public boolean isSuccess() {
@@ -23,11 +23,11 @@ public class Result implements Serializable {
         this.success = success;
     }
 
-    public String getMassage() {
-        return massage;
+    public String getMessage() {
+        return message;
     }
 
-    public void setMassage(String massage) {
-        this.massage = massage;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
