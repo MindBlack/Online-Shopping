@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller,goodsService,fileService){
+app.controller('goodsController' ,function($scope,$controller,goodsService,fileService,itemCatService,typeTemplateService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -10,7 +10,7 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,fileS
 				$scope.list=response;
 			}			
 		);
-	}    
+	};
 	
 	//分页
 	$scope.findPage=function(page,rows){			
@@ -20,7 +20,7 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,fileS
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
-	}
+	};
 	
 	//查询实体 
 	$scope.findOne=function(id){				
@@ -29,8 +29,11 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,fileS
 				$scope.entity= response;					
 			}
 		);				
-	}
-	
+	};
+
+	//定义entity
+	$scope.entity={goods:{},goodsDesc:{itemImages:[],specificationItems:[]},itemList:{}};
+
 	//保存 
 	$scope.save=function(){				
 		var serviceObject;//服务层对象  				
@@ -52,7 +55,7 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,fileS
 				}
 			}		
 		);				
-	}
+	};
 	
 	 
 	//批量删除 
@@ -66,7 +69,7 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,fileS
 				}						
 			}		
 		);				
-	}
+	};
 	
 	$scope.searchEntity={};//定义搜索对象 
 	
@@ -78,6 +81,85 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,fileS
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
+	};
+
+
+	$scope.image_entity={};
+	//上传文件
+	$scope.uploadFile=function () {
+		fileService.uploadFile().success(function (response) {
+			if (response.success){
+				$scope.image_entity.url=response.message;
+			} else {
+				alert(response.message);
+			}
+		})
+	};
+
+	//添加图片
+	$scope.addEntityImage=function () {
+		$scope.entity.goodsDesc.itemImages.push($scope.image_entity);
+	};
+
+	//删除图片
+	$scope.deleteImage=function (index) {
+		$scope.entity.goodsDesc.itemImages.splice(index,1);
+	};
+
+	//一级分类查询
+	$scope.selectItemCat1List=function () {
+		itemCatService.findByParentId(0).success(function (response) {
+			$scope.itemCat1=response;
+		})
+	};
+	//二级分类查询
+	$scope.$watch("entity.goods.category1Id",function (newValue, oldvalue) {
+		itemCatService.findByParentId(newValue).success(function (response) {
+			$scope.itemCat2=response;
+		})
+	});
+	//三级分类查询
+	$scope.$watch("entity.goods.category2Id",function (newValue, oldvalue) {
+		itemCatService.findByParentId(newValue).success(function (response) {
+			$scope.itemCat3=response;
+		})
+	});
+	//四级分类查询
+	$scope.$watch("entity.goods.category3Id",function (newValue, oldvalue) {
+		itemCatService.findOne(newValue).success(function (response) {
+			$scope.entity.goods.typeTemplateId=response.typeId;
+		})
+	});
+	//当模板id改变时发生的联动
+	$scope.$watch("entity.goods.typeTemplateId",function (newValue, oldvalue) {
+		typeTemplateService.findOne(newValue).success(function (response) {
+			$scope.typeTemplate=response;
+			$scope.typeTemplate.brandIds=JSON.parse(response.brandIds);
+			$scope.typeTemplate.customAttributeItems = JSON.parse(response.customAttributeItems);
+		});
+		typeTemplateService.findSpecByTypeId(newValue).success(function (response) {
+			$scope.specList=response;
+		});
+	});
+
+
+	// 选中和取消选中
+	$scope.updateSpecSelect=function (event, specName, optionName) {
+		var obj = $scope.searchObjByKey($scope.entity.goodsDesc.specificationItems,"attributeName",specName);
+		if (event.target.checked){  //勾选
+			if (obj == null) { //添加数据
+				$scope.entity.goodsDesc.specificationItems.push({"attributeName":[specName],"attributeValue":[optionName]});
+			}else {  //数据存在只需要在后面最佳就可以了
+				obj.attributeValue.push(optionName);
+			}
+		}else {  //取消勾选
+			var index = obj.attributeValue.indexOf(index);
+			obj.attributeValue.splice(index,1);
+			if (obj.attributeValue <=0){
+				var ind = $scope.entity.goodsDesc.specificationItems.indexOf(obj);
+				$scope.entity.goodsDesc.specificationItems.splice(ind,1);
+			}
+		}
 	}
     
 });	

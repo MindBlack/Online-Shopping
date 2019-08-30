@@ -65,4 +65,11 @@ public interface TypeTemplateService {
 	 * @return
 	 */
 	public List<Map> seleTpye();
+
+	/**
+	 * 通过typeId类型id查询spec两张对应表返回数据
+	 * @return
+	 */
+	List<Map> findSpecByTypeId(long typeId);
+
 }

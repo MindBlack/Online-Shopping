@@ -41,7 +41,7 @@ $.AdminLTE.options = {
   navbarMenuHeight: "200px", //The height of the inner menu
   //General animation speed for JS animated elements such as box collapse/expand and
   //sidebar treeview slide up/down. This options accepts an integer as milliseconds,
-  //'fast', 'normal', or 'slow'
+  //'config', 'normal', or 'slow'
   animationSpeed: 500,
   //Sidebar push menu toggle button selector
   sidebarToggleSelector: "[data-toggle='offcanvas']",
@@ -198,7 +198,7 @@ $(function () {
     $.AdminLTE.boxWidget.activate();
   }
 
-  //Activate fast click
+  //Activate config click
   if (o.enableFastclick && typeof FastClick != 'undefined') {
     FastClick.attach(document.body);
   }

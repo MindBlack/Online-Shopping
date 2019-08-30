@@ -2,6 +2,12 @@ package com.pinyougou.sellergoods.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.pinyougou.mapper.TbSpecificationOptionMapper;
+import com.pinyougou.pojo.TbSpecificationOption;
+import com.pinyougou.pojo.TbSpecificationOptionExample;
+import org.apache.zookeeper.data.Id;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
@@ -115,6 +121,30 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	@Override
 	public List<Map> seleTpye() {
 		return typeTemplateMapper.seleType();
+	}
+
+	@Autowired
+	private TbSpecificationOptionMapper specificationOptionMapper;
+
+	/**
+	 * 根据typeId查询spec表中的数据进行展示
+	 * @param typeId
+	 * @return
+	 */
+	@Override
+	public List<Map> findSpecByTypeId(long typeId) {
+		TbTypeTemplate template = typeTemplateMapper.selectByPrimaryKey(typeId);
+		String specIdsJSON = template.getSpecIds();
+		List<Map> list= JSON.parseArray(specIdsJSON,Map.class);
+		for (Map map : list) {
+			Integer id = (Integer) map.get("id");
+			TbSpecificationOptionExample example = new TbSpecificationOptionExample();
+			TbSpecificationOptionExample.Criteria criteria = example.createCriteria();
+			criteria.andSpecIdEqualTo(new Long(id));
+			List<TbSpecificationOption> specificationOptionList = specificationOptionMapper.selectByExample(example);
+			map.put("options",specificationOptionList);
+		}
+		return list;
 	}
 
 }

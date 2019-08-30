@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class FileController {
 
-    @Value("http://192.168.25.133/")
+    @Value("${tracker_server_url}")
     private String trackerServerUrl;
     @RequestMapping("/upload")
     public Result uploadFile(MultipartFile upload){
@@ -22,9 +22,10 @@ public class FileController {
             String originalFilename = upload.getOriginalFilename();
             String extensionName = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
             //加载配置文件
-            FastDFSClient fastDFSClient = new FastDFSClient("classpath:fast/fdfs_client.conf");
+            FastDFSClient fastDFSClient = new FastDFSClient("classpath:config/fdfs_client.conf");
             String uploadFile = fastDFSClient.uploadFile(upload.getBytes(), extensionName);
             String complationUrl = trackerServerUrl + uploadFile;
+            System.out.println(complationUrl);
             return new Result(true,complationUrl);
         } catch (Exception e) {
             e.printStackTrace();
