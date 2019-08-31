@@ -6,6 +6,7 @@ import com.pinyougou.entity.Result;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojogroup.Goods;
 import com.pinyougou.sellergoods.service.GoodsService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +51,9 @@ public class GoodsController {
 	 */
 	@RequestMapping("/add")
 	public Result add(@RequestBody Goods goods){
+		//获取登录用户设置
+		String name = SecurityContextHolder.getContext().getAuthentication().getName();
+		goods.getGoods().setSellerId(name);
 		try {
 			goodsService.add(goods);
 			return new Result(true, "增加成功");
@@ -81,7 +85,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public TbGoods findOne(Long id){
+	public Goods findOne(Long id){
 		return goodsService.findOne(id);		
 	}
 	
@@ -110,7 +114,11 @@ public class GoodsController {
 	 */
 	@RequestMapping("/search")
 	public PageResult search(@RequestBody TbGoods goods, int page, int rows  ){
-		return goodsService.findPage(goods, page, rows);		
+		//获取登录用户设置
+		String name = SecurityContextHolder.getContext().getAuthentication().getName();
+		goods.setSellerId(name);
+		PageResult pageResult = goodsService.findPage(goods, page, rows);
+		return pageResult;
 	}
 	
 }
