@@ -35,7 +35,7 @@ public interface GoodsService {
 	/**
 	 * 修改
 	 */
-	public void update(TbGoods goods);
+	public void update(Goods goods);
 	
 
 	/**
@@ -59,6 +59,20 @@ public interface GoodsService {
 	 * @return
 	 */
 	public PageResult findPage(TbGoods goods, int pageNum, int pageSize);
+
+	/**
+	 * 商品审核,修改状态码
+	 * @param ids
+	 * @param auditStatus
+	 */
+	public void updateStatus(Long[] ids,String auditStatus);
+
+	/**
+	 * 商家正在运营商审核通过后自己决定是否上架操作
+	 * @param ids
+	 * @param isMarketable
+	 */
+	public void updateIsMarketable(Long[] ids,String isMarketable);
 
 
 }

@@ -55,7 +55,7 @@ app.controller('goodsController', function ($scope, $controller,$location, goods
     //保存
     $scope.save = function () {
         var serviceObject;//服务层对象
-        if ($scope.entity.id != null) {//如果有ID
+        if ($scope.entity.goods.id != null) {//如果有ID
             serviceObject = goodsService.update($scope.entity); //修改
         } else {
             $scope.entity.goodsDesc.introduction = editor.html();
@@ -206,7 +206,7 @@ app.controller('goodsController', function ($scope, $controller,$location, goods
     };
 
     $scope.entity.itemList = [];
-    //根据勾选动态生成行sku列表
+    // 根据勾选动态生成行sku列表
     $scope.createItemList = function () {
         //初始化  entity={goods:{},goodsDesc:{itemImages:[],specificationItems:[]},itemList:{}};
         $scope.entity.itemList = [{spec: {}, price: 8888, num: 9999, status: 0, isDefault: 0}];
@@ -244,6 +244,26 @@ app.controller('goodsController', function ($scope, $controller,$location, goods
             return index>=0;
         }
         return false;
+    }
+
+    /**
+     * 根据id页面跳转的方法
+     * @param id
+     */
+    $scope.jumpHtml=function (id) {
+        location.href="goods_edit.html#?id="+id;
+    }
+
+    //上架商品上下架处理
+    $scope.updateIsMarketable=function (isMarketable) {
+        goodsService.updateIsMarketable($scope.selectIds,isMarketable).success(function (response) {
+            if (response.success) {
+                $scope.reloadList();
+                $scope.selectIds=[];
+            }else {
+                alert(response.message);
+            }
+        })
     }
 
 

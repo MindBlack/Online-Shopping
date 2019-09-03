@@ -69,14 +69,24 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbGoods goods){
-		try {
-			goodsService.update(goods);
-			return new Result(true, "修改成功");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new Result(false, "修改失败");
+	public Result update(@RequestBody Goods goods){
+		//获取登录用户名
+		String loginSellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+		//查询数据库原来数据的用户名
+		String oldSellerId= goodsService.findOne(goods.getGoods().getId()).getGoods().getSellerId();
+		String newSellerId= goods.getGoods().getSellerId();
+		if (loginSellerId.equals(newSellerId) && loginSellerId.equals(oldSellerId)){
+			try {
+				goodsService.update(goods);
+				return new Result(true, "修改成功");
+			} catch (Exception e) {
+				e.printStackTrace();
+				return new Result(false, "修改失败");
+			}
+		}else {
+			return new Result(false,"非法操作");
 		}
+
 	}	
 	
 	/**
@@ -119,6 +129,17 @@ public class GoodsController {
 		goods.setSellerId(name);
 		PageResult pageResult = goodsService.findPage(goods, page, rows);
 		return pageResult;
+	}
+
+	@RequestMapping("/updateIsMarketable")
+	public Result updateIsMarketable(Long[] ids,String isMarketable){
+		try {
+			goodsService.updateIsMarketable(ids,isMarketable);
+			return new Result(true,"上架成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false,"上架失败");
+		}
 	}
 	
 }

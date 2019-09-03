@@ -32,5 +32,10 @@ app.service('typeTemplateService',function($http){
 	//模板查询包
 	this.seleTpye=function () {
 		return $http.get("../typeTemplate/seleType.do");
+	};
+	//根据typeId类型id去查询数据进行展示
+	this.findSpecByTypeId=function (typeId){
+		return $http.get("../typeTemplate/findSpecByTypeId.do?typeId="+typeId);
 	}
+
 });

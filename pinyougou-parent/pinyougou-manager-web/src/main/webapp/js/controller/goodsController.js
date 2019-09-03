@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller   ,goodsService){	
+app.controller('goodsController' ,function($scope,$controller,$location,goodsService,itemCatService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -23,10 +23,26 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 	}
 	
 	//查询实体 
-	$scope.findOne=function(id){				
+	$scope.findOne=function(id){
+		var id = $location.search()["id"];
 		goodsService.findOne(id).success(
 			function(response){
-				$scope.entity= response;					
+				$scope.entity= response;
+				//向富文本编辑器回传数据
+				editor.html($scope.entity.goodsDesc.introduction);
+				//数据回显时图片处理
+				$scope.entity.goodsDesc.itemImages=JSON.parse(response.goodsDesc.itemImages);
+				//扩展属性回显
+				$scope.entity.goodsDesc.customAttributeItems=JSON.parse(response.goodsDesc.customAttributeItems);
+				//回显的specificationItems转json
+				$scope.entity.goodsDesc.specificationItems=JSON.parse(response.goodsDesc.specificationItems);
+				//回显规格属性转json
+				var skuList = $scope.entity.itemList;
+				for (var i = 0; i < skuList.length; i++) {
+					var sku = skuList[i];
+					sku.spec = JSON.parse(sku.spec);
+				}
+
 			}
 		);				
 	}
@@ -76,5 +92,80 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 			}			
 		);
 	}
-    
+
+	$scope.categoryId=[];
+	$scope.findItemCat=function(){
+		itemCatService.findAll().success(function (response) {
+			for (var i = 0; i < response.length; i++) {
+				var itemCat = response[i];
+				var id = itemCat.id;
+				var name = itemCat.name;
+				$scope.categoryId[id]=name;
+			}
+		})
+	};
+
+	$scope.status=["未审核","已审核","审核未通过","关闭"];
+
+	/**
+	 * 根据id页面跳转的方法
+	 * @param id
+	 */
+	$scope.jumpHtml=function (id) {
+		alert(id);
+		location.href="goods_edit.html#?id="+id;
+	};
+
+
+	//一级分类查询
+	$scope.selectItemCat1List = function () {
+		itemCatService.findByParentId(0).success(function (response) {
+			$scope.itemCat1 = response;
+		})
+	};
+
+	//二级分类查询
+	$scope.$watch("entity.goods.category1Id", function (newValue, oldvalue) {
+		itemCatService.findByParentId(newValue).success(function (response) {
+			$scope.itemCat2 = response;
+		})
+	});
+	//三级分类查询
+	$scope.$watch("entity.goods.category2Id", function (newValue, oldvalue) {
+		itemCatService.findByParentId(newValue).success(function (response) {
+			$scope.itemCat3 = response;
+		})
+	});
+	//四级分类查询
+	$scope.$watch("entity.goods.category3Id", function (newValue, oldvalue) {
+		itemCatService.findOne(newValue).success(function (response) {
+			$scope.entity.goods.typeTemplateId = response.typeId;
+		})
+	});
+
+	//勾选回显处理
+	$scope.updateChecked=function (specName, optionName) {
+		var obj = $scope.searchObjByKey($scope.entity.goodsDesc.specificationItems,"attributeName",specName);
+		if (obj!=null){
+			var attributeValue = obj.attributeValue;
+			var index = attributeValue.indexOf(optionName);
+			return index>=0;
+		}
+		return false;
+	}
+
+	//审核
+	$scope.updateStatus=function (auditStatus) {
+		goodsService.updateStatus($scope.selectIds,auditStatus).success(function (response) {
+			if (response.success){
+				$scope.reloadList();//刷新列表
+				$scope.selectIds=[];
+			} 	else {
+				alert(response.message);
+			}
+
+		})
+	}
+
+
 });	

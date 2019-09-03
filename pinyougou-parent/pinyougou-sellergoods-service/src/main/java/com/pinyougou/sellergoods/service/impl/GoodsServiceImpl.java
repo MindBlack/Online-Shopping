@@ -16,6 +16,7 @@ import com.pinyougou.pojo.TbGoodsExample.Criteria;
 import com.pinyougou.sellergoods.service.GoodsService;
 
 import com.pinyougou.entity.PageResult;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 服务实现层
@@ -23,6 +24,7 @@ import com.pinyougou.entity.PageResult;
  *
  */
 @Service
+@Transactional
 public class GoodsServiceImpl implements GoodsService {
 
 	@Autowired
@@ -69,16 +71,24 @@ public class GoodsServiceImpl implements GoodsService {
 		TbGoods tbGoods = goods.getGoods();
 		tbGoods.setAuditStatus("0");
 		TbGoodsDesc tbGoodsDesc = goods.getGoodsDesc();
-
 		//获取主键  给goods表添加数据
 		goodsMapper.insert(tbGoods);
 		//设置主键
 		Long goodsId = tbGoods.getId();
 		tbGoodsDesc.setGoodsId(goodsId);
-
 		//添加数据  给goodsDesc表添加数据
 		goodsDescMapper.insert(tbGoodsDesc);
 
+		addAndUpdateItem(goods,tbGoods,tbGoodsDesc);
+	}
+
+	/**
+	 * 给item表添加数据的方法
+	 * @param goods
+	 * @param tbGoods
+	 * @param tbGoodsDesc
+	 */
+	public void addAndUpdateItem(Goods goods ,TbGoods tbGoods,TbGoodsDesc tbGoodsDesc){
 		if ("1".equals(tbGoods.getIsEnableSpec())){
 			//添加数据   给item表添加数据
 			List<TbItem> itemList = goods.getItemList();
@@ -161,8 +171,22 @@ public class GoodsServiceImpl implements GoodsService {
 	 * 修改
 	 */
 	@Override
-	public void update(TbGoods goods){
-		goodsMapper.updateByPrimaryKey(goods);
+	public void update(Goods goods){
+		//设置为未审核状态
+		TbGoods tbGoods = goods.getGoods();
+		tbGoods.setAuditStatus("0");
+		//修改goods表中的数据
+		goodsMapper.updateByPrimaryKey(tbGoods);
+		TbGoodsDesc tbGoodsDesc = goods.getGoodsDesc();
+		//秀爱goodsDesc表中的数据
+		goodsDescMapper.updateByPrimaryKey(tbGoodsDesc);
+		//根据goodsId删除item数据
+		TbItemExample example = new TbItemExample();
+		TbItemExample.Criteria criteria = example.createCriteria();
+		criteria.andGoodsIdEqualTo(goods.getGoods().getId());
+		itemMapper.deleteByExample(example);
+		//调用方法进行数据的添加
+		addAndUpdateItem(goods,tbGoods,tbGoodsDesc);
 	}	
 	
 	/**
@@ -191,7 +215,9 @@ public class GoodsServiceImpl implements GoodsService {
 	@Override
 	public void delete(Long[] ids) {
 		for(Long id:ids){
-			goodsMapper.deleteByPrimaryKey(id);
+			TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);
+			tbGoods.setIsDelete("1");
+			goodsMapper.updateByPrimaryKey(tbGoods);
 		}		
 	}
 	
@@ -202,7 +228,7 @@ public class GoodsServiceImpl implements GoodsService {
 		
 		TbGoodsExample example=new TbGoodsExample();
 		Criteria criteria = example.createCriteria();
-		
+		criteria.andIsDeleteIsNull();
 		if(goods!=null){			
 			if(goods.getSellerId()!=null && goods.getSellerId().length()>0){
 //				criteria.andSellerIdLike("%"+goods.getSellerId()+"%");
@@ -235,5 +261,34 @@ public class GoodsServiceImpl implements GoodsService {
 		Page<TbGoods> page= (Page<TbGoods>)goodsMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+	/**
+	 * 商品审核,修改商品的状态码
+	 * @param ids
+	 * @param auditStatus
+	 */
+	@Override
+	public void updateStatus(Long[] ids, String auditStatus) {
+		for (Long id : ids) {
+			TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);
+			tbGoods.setAuditStatus(auditStatus);
+			goodsMapper.updateByPrimaryKey(tbGoods);
+
+		}
+	}
+
+	/**
+	 * 商家正在运营商审核通过后自己决定是否上架操作
+	 * @param ids
+	 * @param isMarketable
+	 */
+	@Override
+	public void updateIsMarketable(Long[] ids, String isMarketable) {
+		for (Long id : ids) {
+			TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);
+			tbGoods.setIsMarketable(isMarketable);
+			goodsMapper.updateByPrimaryKey(tbGoods);
+		}
+	}
+
 }

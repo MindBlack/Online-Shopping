@@ -120,5 +120,15 @@ public class TypeTemplateController {
 	public List<Map> seleType(){
 		return typeTemplateService.seleTpye();
 	}
+
+	/**
+	 * 通过typeid查找数据进行展示
+	 * @param typeId
+	 * @return
+	 */
+	@RequestMapping("/findSpecByTypeId")
+	public List<Map> findSpecByTypeId(long typeId){
+		return typeTemplateService.findSpecByTypeId(typeId);
+	}
 	
 }
