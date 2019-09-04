@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller,$location,goodsService,itemCatService){
+app.controller('goodsController' ,function($scope,$controller,$location,goodsService,itemCatService,typeTemplateService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -23,7 +23,7 @@ app.controller('goodsController' ,function($scope,$controller,$location,goodsSer
 	}
 	
 	//查询实体 
-	$scope.findOne=function(id){
+	$scope.findOne=function(){
 		var id = $location.search()["id"];
 		goodsService.findOne(id).success(
 			function(response){
@@ -46,6 +46,9 @@ app.controller('goodsController' ,function($scope,$controller,$location,goodsSer
 			}
 		);				
 	}
+
+	//定义entity
+	$scope.entity = {goods: {}, goodsDesc: {itemImages: [], specificationItems: []}, itemList: {}};
 	
 	//保存 
 	$scope.save=function(){				
@@ -141,6 +144,27 @@ app.controller('goodsController' ,function($scope,$controller,$location,goodsSer
 		itemCatService.findOne(newValue).success(function (response) {
 			$scope.entity.goods.typeTemplateId = response.typeId;
 		})
+	});
+
+	//当模板id改变时发生的联动
+	$scope.$watch("entity.goods.typeTemplateId", function (newValue, oldvalue) {
+		typeTemplateService.findOne(newValue).success(function (response) {
+			$scope.typeTemplate = response;   //模板对象
+			$scope.typeTemplate.brandIds = JSON.parse(response.brandIds);
+			/**
+			 * 获取模板扩展属性
+			 * 解决方案,判断是否是更新操作
+			 * 如果不是执行以下代码
+			 * @type {any}
+			 */
+			var id = $location.search().id;
+			if (id==null){
+				$scope.entity.goodsDesc.customAttributeItems = JSON.parse(response.customAttributeItems);
+			}
+		});
+		typeTemplateService.findSpecByTypeId(newValue).success(function (response) {
+			$scope.specList = response;
+		});
 	});
 
 	//勾选回显处理
