@@ -3,6 +3,7 @@ import java.util.List;
 import com.pinyougou.pojo.TbGoods;
 
 import com.pinyougou.entity.PageResult;
+import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojogroup.Goods;
 
 /**
@@ -73,6 +74,14 @@ public interface GoodsService {
 	 * @param isMarketable
 	 */
 	public void updateIsMarketable(Long[] ids,String isMarketable);
+
+	/**
+	 *
+	 * @param GoodsIds
+	 * @param status
+	 * @return
+	 */
+	public List<TbItem> findItemListByGoodsIdAndStatus(Long[] GoodsIds,String status);
 
 
 }

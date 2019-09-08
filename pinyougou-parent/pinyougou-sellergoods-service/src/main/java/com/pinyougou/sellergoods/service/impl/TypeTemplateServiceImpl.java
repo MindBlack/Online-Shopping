@@ -19,6 +19,7 @@ import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
 import com.pinyougou.sellergoods.service.TypeTemplateService;
 
 import com.pinyougou.entity.PageResult;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -112,7 +113,9 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	
 		}
 		
-		Page<TbTypeTemplate> page= (Page<TbTypeTemplate>)typeTemplateMapper.selectByExample(example);		
+		Page<TbTypeTemplate> page= (Page<TbTypeTemplate>)typeTemplateMapper.selectByExample(example);
+		//存入数据到缓存中
+		save2Redis();
 		return new PageResult(page.getTotal(), page.getResult());
 	}
 
@@ -149,4 +152,21 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 		return list;
 	}
 
+	@Autowired
+	private RedisTemplate redisTemplate;
+
+	/**
+	 * 将数据存入缓存
+	 */
+	private void save2Redis(){
+		List<TbTypeTemplate> templateList = findAll();
+		for (TbTypeTemplate template : templateList) {
+			Long id = template.getId();
+			String brandIds = template.getBrandIds();
+			List<Map> brandList = JSON.parseArray(brandIds, Map.class);
+			redisTemplate.boundHashOps("brandList").put(id,brandList);
+			List<Map> specList = findSpecByTypeId(id);
+			redisTemplate.boundHashOps("specList").put(id,specList);
+		}
+	}
 }

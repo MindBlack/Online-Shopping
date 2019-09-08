@@ -1,5 +1,5 @@
  //控制层 
-app.controller('contentController' ,function($scope,contentService){
+app.controller('contentController' ,function($scope,$location,contentService){
 
 
 	$scope.contentList=[];
@@ -9,5 +9,9 @@ app.controller('contentController' ,function($scope,contentService){
 		})
 	}
 
+	//页面跳转方法
+	$scope.search=function () {
+		location.href="http://localhost:9104/search.html#?keywords="+$scope.keywords;
+	}
 
 });	

@@ -11,6 +11,7 @@ import com.pinyougou.pojo.TbItemCatExample.Criteria;
 import com.pinyougou.sellergoods.service.ItemCatService;
 
 import com.pinyougou.entity.PageResult;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -104,13 +105,23 @@ public class ItemCatServiceImpl implements ItemCatService {
 				criteria.andParentIdEqualTo(itemCat.getParentId());
 			}
 		}
-		
-		Page<TbItemCat> page= (Page<TbItemCat>)itemCatMapper.selectByExample(example);		
+
+		Page<TbItemCat> page= (Page<TbItemCat>)itemCatMapper.selectByExample(example);
+		List<TbItemCat> list = findAll();
+		for (TbItemCat itemCat1 : list) {
+			String name = itemCat1.getName();
+			Long typeId = itemCat1.getTypeId();
+			redisTemplate.boundHashOps("itemCatList").put(name,typeId);
+		}
 		return new PageResult(page.getTotal(), page.getResult());
 	}
 
+	@Autowired
+	private RedisTemplate redisTemplate;
+
 	/**
 	 * 根据parentId分级查询
+	 * 引入redis缓存,将结果加入到redis缓存中
 	 * @param parentId
 	 * @return
 	 */
@@ -119,6 +130,13 @@ public class ItemCatServiceImpl implements ItemCatService {
 		TbItemCatExample example = new TbItemCatExample();
 		Criteria criteria = example.createCriteria();
 		criteria.andParentIdEqualTo(parentId);
+		List<TbItemCat> list = findAll();
+		for (TbItemCat itemCat : list) {
+			String name = itemCat.getName();
+			Long typeId = itemCat.getTypeId();
+			redisTemplate.boundHashOps("itemCatList").put(name,typeId);
+		}
+
 		return itemCatMapper.selectByExample(example);
 	}
 

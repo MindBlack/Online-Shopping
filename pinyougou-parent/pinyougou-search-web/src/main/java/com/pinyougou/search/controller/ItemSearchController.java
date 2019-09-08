@@ -16,6 +16,11 @@ public class ItemSearchController {
     @Reference(timeout = 5000)
     private ItemSearchService itemSearchService;
 
+    /**
+     * 搜索关键字高亮显示结果
+     * @param searchMap
+     * @return
+     */
     @RequestMapping("/search")
     public Map<String,Object> search(@RequestBody Map searchMap){
         return itemSearchService.search(searchMap);
