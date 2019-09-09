@@ -2,6 +2,7 @@ package com.pinyougou.manage.controller;
 import java.util.Arrays;
 import java.util.List;
 
+import com.pinyougou.page.serveice.ItemPageService;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojogroup.Goods;
 import com.pinyougou.search.service.ItemSearchService;
@@ -28,6 +29,9 @@ public class GoodsController {
 
 	@Reference
 	private ItemSearchService itemSearchService;
+
+	@Reference(timeout=5000)
+	private ItemPageService itemPageService;
 
 	/**
 	 * 返回全部列表
@@ -133,12 +137,27 @@ public class GoodsController {
 				}else {
 					System.out.println("没有明细数据");
 				}
+				//静态页面生成
+				for (Long id : ids) {
+					itemPageService.genItemHtml(id);
+				}
 			}
 			return new Result(true,"更新完成");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new Result(false,"更新失败");
 		}
+	}
+
+
+
+	/**
+	 * 生存静态页面（测试）
+	 * @param goodsId
+	 */
+	@RequestMapping("/genItemHtml")
+	public void genItemHtml(Long goodsId){
+		itemPageService.genItemHtml(goodsId);
 	}
 
 

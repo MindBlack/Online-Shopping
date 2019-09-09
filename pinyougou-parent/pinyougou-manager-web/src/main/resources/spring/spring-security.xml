@@ -13,6 +13,7 @@
     <security:http pattern="/img/**" security="none"/>
     <security:http pattern="/js/**" security="none"/>
     <security:http pattern="/plugins/**" security="none"/>
+    <security:http pattern="/goods/genItemHtml.do" security="none"/>
 
     <!--拦截规则-->
     <security:http use-expressions="false">

@@ -173,7 +173,17 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         //循环高亮入口集合
         List<HighlightEntry<TbItem>> highlightEntryList = page.getHighlighted();
         for (HighlightEntry<TbItem> highlightEntry : highlightEntryList) {
+            TbItem item = highlightEntry.getEntity();
             List<HighlightEntry.Highlight> list = highlightEntry.getHighlights();
+            //获取头文件的高亮
+            if(list!= null && list.size() > 0) {
+                HighlightEntry.Highlight itemTitle = list.get(0);
+                if(itemTitle.getSnipplets()!= null && itemTitle.getSnipplets().size() >0) {
+                    String title = itemTitle.getSnipplets().get(0);
+                    item.setTitle(title);
+                }
+            }
+/*            List<HighlightEntry.Highlight> list = highlightEntry.getHighlights();
             //获取头文件的高亮
             HighlightEntry.Highlight itemTitle = list.get(0);
             String title = itemTitle.getSnipplets().get(0);
@@ -182,7 +192,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
 //            String brand = itemBrand.getSnipplets().get(0);
             TbItem item = highlightEntry.getEntity();
             item.setTitle(title);
-//            item.setBrand(brand);
+//            item.setBrand(brand);*/
         }
         resultMap.put("rows", page.getContent());
         resultMap.put("totalPages", page.getTotalPages());  //返回总页数
