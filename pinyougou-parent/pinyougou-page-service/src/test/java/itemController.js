@@ -61,4 +61,9 @@ app.controller('itemController' ,function($scope,itemService){
 		$scope.sku={id:0,title:'----',price:0}
 	}
 
+	//购物车弹出数量和商品的id
+    $scope.addToCart=function () {
+        alert("数量：" + $scope.num + "---商品id："+$scope.sku.id);
+    }
+
 });

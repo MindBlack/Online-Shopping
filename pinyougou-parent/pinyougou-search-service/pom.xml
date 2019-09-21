@@ -82,6 +82,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--activemq依赖-->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>5.13.4</version>
+        </dependency>
 
         <!--依赖模块-->
         <dependency>
@@ -104,7 +110,7 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <configuration>
                     <path>/</path>
-                    <port>9003</port>
+                    <port>9004</port>
                 </configuration>
             </plugin>
         </plugins>

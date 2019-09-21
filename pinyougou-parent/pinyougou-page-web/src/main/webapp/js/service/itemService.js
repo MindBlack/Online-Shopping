@@ -1,9 +1,9 @@
 //服务层
 app.service('itemService',function($http){
-	    	
+
 	//读取列表数据绑定到表单中
 	this.findAll=function(){
-		return $http.get('../item/findAll.do');		
+		return $http.get('../item/findAll.do');
 	}
 	//分页 
 	this.findPage=function(page,rows){
@@ -28,5 +28,5 @@ app.service('itemService',function($http){
 	//搜索
 	this.search=function(page,rows,searchEntity){
 		return $http.post('../item/search.do?page='+page+"&rows="+rows, searchEntity);
-	}    	
+	}
 });
